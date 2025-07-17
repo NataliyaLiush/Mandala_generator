@@ -1,30 +1,36 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8"/>
-  <title>Гематрія + Фібоначчі</title>
+  <meta charset="UTF-8" />
+  <title>Числовий код наміру</title>
   <style>
     body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
-    h1 { text-align: center; }
-    textarea { width: 100%; height: 80px; font-size: 1rem; }
-    button { padding: 10px 20px; font-size: 1rem; margin-top: 10px; }
-    pre { background: #f5f5f5; padding: 15px; white-space: pre-wrap; }
+    h1 { text-align: center; margin-top: 20px; }
+    p { text-align: center; margin-bottom: 20px; }
+    textarea { width: 100%; height: 100px; font-size: 1rem; padding: 10px; box-sizing: border-box; }
+    button { display: block; margin: 20px auto; padding: 10px 20px; font-size: 1rem; cursor: pointer; }
+    pre { background: #f5f5f5; padding: 15px; white-space: pre-wrap; font-size: 1rem; min-height: 40px; }
+    img { display: block; margin: 20px auto; max-width: 100%; height: auto; }
   </style>
 </head>
 <body>
-  <h1>Персональна мандала з чисел</h1>
+  <!-- Перед використанням скопіюйте цей файл як mandala.html і розмістіть поруч mandala.png -->
+  <img src="mandala.png" alt="Мандала генератора">
+
+  <h1>Числовий код наміру</h1>
   <p>Напишіть свій намір – отримаєте числовий ряд:</p>
+
   <textarea id="inputText" placeholder="Наприклад: я заробляю десять тисяч доларів на місяць"></textarea>
   <button onclick="process()">Створити ряд</button>
 
   <h2>Числовий ряд:</h2>
   <pre id="outputFull">—</pre>
 
-  <h2>Спряжений ряд (8 членів, ітеративне спрощення):</h2>
+  <h2>Спряжений ряд (8 членів):</h2>
   <pre id="outputShort">—</pre>
 
   <script>
-    // 1. Мапа Pythagorean-Гематрії
+    // Pythagorean гематрія для українських літер
     const gematria = {
       'А':1,'Б':2,'В':3,'Г':4,'Ґ':5,'Д':6,'Е':7,'Є':8,'Ж':9,
       'З':1,'И':2,'І':3,'Ї':4,'Й':5,'К':6,'Л':7,'М':8,'Н':9,
@@ -32,32 +38,29 @@
       'Ч':1,'Ш':2,'Щ':3,'Ь':4,'Ю':5,'Я':6
     };
 
-    // Перетворюємо фразу в числовий ряд
-    function textToNumbers(text){
+    // Перетворення тексту в числовий масив
+    function textToNumbers(text) {
       return text.toUpperCase()
                  .split('')
                  .map(ch => gematria[ch] || null)
                  .filter(n => n);
     }
 
-    // Нумерологічна редукція одного числа
+    // Редукція числа до однозначного
     function reduceNumber(n) {
       while (n > 9) {
-        n = n.toString()
-             .split('')
-             .reduce((sum, d) => sum + parseInt(d), 0);
+        n = n.toString().split('').reduce((sum, d) => sum + parseInt(d), 0);
       }
       return n;
     }
 
-    // Ітеративне спрощення сусідніми сумами до довжини 8
+    // Ітеративне спрощення рядка до довжини 8 за сумою сусідніх
     function iterativeFiboSimplify(arr) {
       let row = arr.slice();
       while (row.length > 8) {
         const next = [];
         for (let i = 0; i < row.length - 1; i++) {
-          let s = row[i] + row[i+1];
-          next.push(reduceNumber(s));
+          next.push(reduceNumber(row[i] + row[i + 1]));
         }
         row = next;
       }
@@ -65,15 +68,13 @@
     }
 
     // Обробка натискання кнопки
-    function process(){
+    function process() {
       const text = document.getElementById('inputText').value;
       const full = textToNumbers(text);
       const short = iterativeFiboSimplify(full);
-
-      document.getElementById('outputFull').textContent  = full.join(', ');
+      document.getElementById('outputFull').textContent = full.join(', ');
       document.getElementById('outputShort').textContent = short.join(', ');
     }
   </script>
 </body>
 </html>
-
