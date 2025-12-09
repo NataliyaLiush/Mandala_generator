@@ -35,7 +35,14 @@
       line-height: 1.5;
     }
 
-    /* головна карта з мандалою */
+    .subtitle {
+      text-align: center;
+      font-size: 0.95rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #a5b4fc;
+    }
+
     .card {
       position: relative;
       overflow: hidden;
@@ -49,12 +56,12 @@
     .mandala-bg {
       position: absolute;
       inset: -40px;
-      background-image: url("mandala_bg.png"); /* <-- назва файлу з мандалою */
+      background-image: url("mandala.png"); /* твоя мандала */
       background-repeat: no-repeat;
       background-position: center 10%;
       background-size: 520px 520px;
-      opacity: 0.20;
-      filter: blur(0.6px);
+      opacity: 0.25;
+      filter: blur(0.4px);
       pointer-events: none;
       z-index: 0;
     }
@@ -65,7 +72,6 @@
       grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
       gap: 18px 28px;
     }
-
     @media (max-width: 860px) {
       .card-inner {
         grid-template-columns: minmax(0, 1fr);
@@ -78,14 +84,6 @@
 
     .left-block {
       padding-right: 6px;
-    }
-
-    .subtitle {
-      text-align: center;
-      font-size: 0.95rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #a5b4fc;
     }
 
     textarea {
@@ -140,6 +138,7 @@
     .hint {
       font-size: 0.87rem;
       color: #9ca3af;
+      display: none; /* текст під кнопкою не показуємо */
     }
 
     .output-block {
@@ -162,13 +161,25 @@
       letter-spacing: 0.12em;
     }
 
-    /* трикутна матриця */
+    /* блок з двома трикутниками */
+    .matrix-wrapper {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
     .matrix-triangle {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
-      margin-top: 6px;
+    }
+    .matrix-label {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-bottom: 4px;
     }
     .matrix-row {
       display: flex;
@@ -207,30 +218,6 @@
     .legend-name {
       text-transform: lowercase;
     }
-    .row6-colors {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 6px;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    .row6-chip {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 34px;
-      padding: 4px 9px;
-      border-radius: 999px;
-      border: 1px solid rgba(15,23,42,0.7);
-      font-size: 0.8rem;
-      color: #0f172a;
-      background: #e5e7eb;
-    }
-    .small-note {
-      font-size: 0.8rem;
-      color: #9ca3af;
-      margin-top: 4px;
-    }
 
     .footer {
       margin-top: 24px;
@@ -238,27 +225,33 @@
       color: #9ca3af;
       text-align: center;
     }
+
+    .pdf-btn-wrap {
+      margin-top: 14px;
+      display: flex;
+      justify-content: flex-end;
+    }
   </style>
 </head>
 <body>
   <div class="wrapper">
     <h1><span>МІЙ НАМІР</span> НА МОВІ ВСЕСВІТУ</h1>
-    <p class="subtitle">генератор числового коду та мандальної матриці</p>
+    <p class="subtitle">числовий код та мандальна матриця наміру</p>
 
     <div class="card">
       <div class="mandala-bg"></div>
 
       <div class="card-inner">
-        <!-- ЛІВА ЧАСТИНА: намір + числа -->
+        <!-- ЛІВА ЧАСТИНА -->
         <div class="left-block">
           <h2 style="margin-top:0; font-size:1.05rem;">1. Введіть свій намір</h2>
-          <p>Пишіть щиро, українською, в стверджувальній формі. Система переведе фразу в числовий код.</p>
+          <p>Пишіть щиро, українською, в стверджувальній формі.</p>
 
           <textarea id="wishInput" placeholder="Наприклад: Легко, радісно і вільно проявляю свій дар та отримую гідну винагороду."></textarea>
 
           <div class="controls">
-            <button id="generateBtn">Створити мову Всесвіту</button>
-            <span class="hint">Букви → числа → редукція до 6 → трикутна матриця та кольори.</span>
+            <button id="generateBtn">Створити числовий код наміру</button>
+            <span class="hint"></span>
           </div>
 
           <div class="output-block" id="initialBlock" style="display:none;">
@@ -272,33 +265,44 @@
           </div>
         </div>
 
-        <!-- ПРАВА ЧАСТИНА: матриця + кольори -->
+        <!-- ПРАВА ЧАСТИНА -->
         <div>
           <div class="output-block" id="matrixBlock" style="display:none;">
             <div class="output-title">Трикутна матриця для мандали:</div>
-            <div id="matrixTriangle" class="matrix-triangle"></div>
-            <div class="small-note">Перший ряд (внизу) — край сектора; верхівка — наближення до центру мандали.</div>
+            <div id="matrixWrapper" class="matrix-wrapper">
+              <div class="matrix-triangle">
+                <div class="matrix-label">Основний код</div>
+                <div id="matrixTriangleMain"></div>
+              </div>
+              <div class="matrix-triangle">
+                <div class="matrix-label">Дзеркальний код</div>
+                <div id="matrixTriangleMirror"></div>
+              </div>
+            </div>
           </div>
 
           <div class="output-block" id="colorBlock" style="display:none;">
             <div class="output-title">Кольоровий код для цього наміру:</div>
             <div id="colorLegend" class="legend-list"></div>
-            <div class="small-note" id="colorNote"></div>
+          </div>
 
-            <div style="margin-top:8px; font-weight:600;">Кольори для 6-членного коду:</div>
-            <div id="row6Colors" class="row6-colors"></div>
+          <div class="pdf-btn-wrap" id="pdfBlock" style="display:none;">
+            <button id="downloadPdfBtn">Скачати PDF з кодом наміру</button>
           </div>
         </div>
       </div>
     </div>
 
     <div class="footer">
-      Збережіть свій код — і перенесіть числа та кольори у мандалу як сакральний запис наміру на мові Всесвіту.
+      Перенесіть числа та кольори у мандалу — це запис вашого наміру на мові Всесвіту.
     </div>
   </div>
 
+  <!-- jsPDF для завантаження PDF -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
   <script>
-    // 1. Букви → числа (твоя таблиця)
+    // Букви → числа
     function textToNumbers(text) {
       const map = {
         'а':1, 'б':2, 'в':3, 'г':4, 'ґ':5, 'д':6, 'е':7, 'є':8, 'ж':9,
@@ -314,17 +318,17 @@
         .filter(num => num !== undefined);
     }
 
-    // 2. Сума пари цифр з редукцією до однієї цифри 1–9 (без нулів)
+    // сума пари → одна цифра 1–9 (цифровий корінь)
     function pairSumDigit(a, b) {
       let sum = a + b;
       while (sum >= 10) {
         sum = Math.floor(sum / 10) + (sum % 10);
       }
-      if (sum === 0) sum = 1; // теоретично не потрібно, але лишаємо як захист
+      if (sum === 0) sum = 1;
       return sum;
     }
 
-    // 3. Редукція ряду (трикутник) за твоєю методикою
+    // редукція одного ряду
     function mandalaReduce(arr) {
       const reduced = [];
       for (let i = 0; i < arr.length - 1; i++) {
@@ -333,7 +337,7 @@
       return reduced;
     }
 
-    // 4. Скорочення до 6 чисел
+    // скорочення до 6 чисел
     function reduceToSix(numbers) {
       let result = [...numbers];
       while (result.length > 6) {
@@ -348,7 +352,7 @@
       return result;
     }
 
-    // 5. Побудова трикутної матриці
+    // трикутна матриця (вершина вниз)
     function buildTriangleMatrix(firstRow) {
       const matrix = [];
       let current = [...firstRow];
@@ -357,20 +361,20 @@
         current = mandalaReduce(current);
         matrix.push(current);
       }
-      return matrix;
+      return matrix; // [6,5,4,3,2,1] довжини
     }
 
-    // 6. Кольори
+    // кольори
     const colorCycle = [
-      'червоний',     // 0
-      'синій',        // 1
-      'зелений',      // 2
-      'жовтий',       // 3
-      'блакитний',    // 4
-      'бірюзовий',    // 5
-      'рожевий',      // 6
-      'помаранчевий', // 7
-      'фіолетовий'    // 8
+      'червоний',
+      'синій',
+      'зелений',
+      'жовтий',
+      'блакитний',
+      'бірюзовий',
+      'рожевий',
+      'помаранчевий',
+      'фіолетовий'
     ];
     const color0 = 'золотий';
 
@@ -389,7 +393,7 @@
 
     function getColorForDigit(digit, firstDigit) {
       if (digit === 0) return color0;
-      const shift = (firstDigit - 1) % 9; // 1 → 0; 2 →1; ... 9 →8
+      const shift = (firstDigit - 1) % 9;
       const idx = (digit - 1 + shift) % 9;
       return colorCycle[idx];
     }
@@ -403,21 +407,23 @@
       return legend;
     }
 
-    // 7. DOM-елементи
+    // DOM
     const wishInput      = document.getElementById('wishInput');
     const initialRowEl   = document.getElementById('initialRow');
     const row6El         = document.getElementById('row6');
-    const matrixTriangle = document.getElementById('matrixTriangle');
+    const matrixTriangleMain   = document.getElementById('matrixTriangleMain');
+    const matrixTriangleMirror = document.getElementById('matrixTriangleMirror');
     const colorLegendEl  = document.getElementById('colorLegend');
-    const colorNoteEl    = document.getElementById('colorNote');
-    const row6ColorsEl   = document.getElementById('row6Colors');
 
     const initialBlock = document.getElementById('initialBlock');
     const row6Block    = document.getElementById('row6Block');
     const matrixBlock  = document.getElementById('matrixBlock');
     const colorBlock   = document.getElementById('colorBlock');
+    const pdfBlock     = document.getElementById('pdfBlock');
+    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
 
-    // 8. Обробка кнопки
+    let lastData = null; // для PDF
+
     document.getElementById('generateBtn').addEventListener('click', () => {
       const text = wishInput.value.trim();
 
@@ -434,30 +440,36 @@
       }
 
       const row6   = reduceToSix(baseNumbers);
-      const matrix = buildTriangleMatrix(row6);
+      const matrixMain   = buildTriangleMatrix(row6);
+      const row6Reversed = [...row6].reverse();
+      const matrixMirror = buildTriangleMatrix(row6Reversed);
 
       initialRowEl.textContent = baseNumbers.join(' ');
       row6El.textContent       = row6.join(' ');
 
-      // трикутна матриця (рівний трикутник)
-      matrixTriangle.innerHTML = '';
-      const reversed = [...matrix].reverse(); // щоб перший ряд був внизу
-      reversed.forEach(row => {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'matrix-row';
-        row.forEach(d => {
-          const span = document.createElement('span');
-          span.className = 'matrix-digit';
-          span.textContent = d;
-          rowDiv.appendChild(span);
+      // малюємо два трикутники (вершина вниз: перший ряд — довжина 1 нагорі, 6 — знизу)
+      function renderTriangle(container, matrix) {
+        container.innerHTML = '';
+        const reversed = [...matrix].reverse(); // щоб вершина (1 елемент) була зверху
+        reversed.forEach(row => {
+          const rowDiv = document.createElement('div');
+          rowDiv.className = 'matrix-row';
+          row.forEach(d => {
+            const span = document.createElement('span');
+            span.className = 'matrix-digit';
+            span.textContent = d;
+            rowDiv.appendChild(span);
+          });
+          container.appendChild(rowDiv);
         });
-        matrixTriangle.appendChild(rowDiv);
-      });
+      }
+
+      renderTriangle(matrixTriangleMain, matrixMain);
+      renderTriangle(matrixTriangleMirror, matrixMirror);
 
       // кольори
       const firstDigit = baseNumbers[0];
       const legend = buildColorLegend(firstDigit);
-
       colorLegendEl.innerHTML = '';
       legend.forEach(item => {
         const div = document.createElement('div');
@@ -481,26 +493,74 @@
         colorLegendEl.appendChild(div);
       });
 
-      colorNoteEl.textContent =
-        'Кольори зсуваються за першою цифрою наміру. Для цього наміру перша цифра: ' +
-        firstDigit + '.';
-
-      row6ColorsEl.innerHTML = '';
-      row6.forEach(d => {
-        const colorName = getColorForDigit(d, firstDigit);
-        const chip = document.createElement('span');
-        chip.className = 'row6-chip';
-        chip.style.backgroundColor = colorNameToCss[colorName] || '#e5e7eb';
-        chip.textContent = d + ' ' + colorName;
-        row6ColorsEl.appendChild(chip);
-      });
-
       initialBlock.style.display = 'block';
       row6Block.style.display    = 'block';
       matrixBlock.style.display  = 'block';
       colorBlock.style.display   = 'block';
+      pdfBlock.style.display     = 'flex';
+
+      // зберігаємо дані для PDF
+      lastData = {
+        text,
+        baseNumbers,
+        row6,
+        matrixMain,
+        matrixMirror,
+        legend
+      };
+    });
+
+    downloadPdfBtn.addEventListener('click', () => {
+      if (!lastData) return;
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      let y = 10;
+      doc.setFontSize(14);
+      doc.text('МІЙ НАМІР НА МОВІ ВСЕСВІТУ', 10, y);
+      y += 8;
+
+      doc.setFontSize(11);
+      doc.text('Намір:', 10, y);
+      y += 6;
+      doc.text(doc.splitTextToSize(lastData.text, 180), 10, y);
+      y += 10;
+
+      doc.text('Початковий числовий ряд:', 10, y);
+      y += 6;
+      doc.text(lastData.baseNumbers.join(' '), 10, y);
+      y += 8;
+
+      doc.text('Скорочений код (6 чисел):', 10, y);
+      y += 6;
+      doc.text(lastData.row6.join(' '), 10, y);
+      y += 10;
+
+      doc.text('Трикутна матриця (основний код):', 10, y);
+      y += 6;
+      lastData.matrixMain.forEach(row => {
+        doc.text(row.join(' '), 10, y);
+        y += 6;
+      });
+      y += 6;
+
+      doc.text('Трикутна матриця (дзеркальний код):', 10, y);
+      y += 6;
+      lastData.matrixMirror.forEach(row => {
+        doc.text(row.join(' '), 10, y);
+        y += 6;
+      });
+      y += 8;
+
+      doc.text('Кольоровий код (цифра – колір):', 10, y);
+      y += 6;
+      lastData.legend.forEach(item => {
+        doc.text(item.digit + ' – ' + item.color, 10, y);
+        y += 6;
+      });
+
+      doc.save('kod_namiru.pdf');
     });
   </script>
 </body>
 </html>
-
