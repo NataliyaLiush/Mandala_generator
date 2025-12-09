@@ -1,80 +1,506 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8" />
-  <title>Числовий код наміру</title>
+  <meta charset="UTF-8">
+  <title>МІЙ НАМІР НА МОВІ ВСЕСВІТУ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
-    h1 { text-align: center; margin-top: 20px; }
-    p { text-align: center; margin-bottom: 20px; }
-    textarea { width: 100%; height: 100px; font-size: 1rem; padding: 10px; box-sizing: border-box; }
-    button { display: block; margin: 20px auto; padding: 10px 20px; font-size: 1rem; cursor: pointer; }
-    pre { background: #f5f5f5; padding: 15px; white-space: pre-wrap; font-size: 1rem; min-height: 40px; }
-    img { display: block; margin: 20px auto; max-width: 100px; height: auto; }
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #050816 0%, #020617 50%, #020617 100%);
+      color: #e5e7eb;
+    }
+    .wrapper {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+    h1 {
+      font-size: 2.1rem;
+      margin-bottom: 0.3rem;
+      text-align: center;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #f9fafb;
+    }
+    h1 span {
+      color: #facc15;
+    }
+    p {
+      margin: 0.2rem 0 0.5rem;
+      line-height: 1.5;
+    }
+
+    /* головна карта з мандалою */
+    .card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 24px;
+      padding: 24px 18px 26px;
+      margin-top: 1.6rem;
+      background: radial-gradient(circle at top, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.98) 40%, rgba(15,23,42,1) 100%);
+      box-shadow: 0 26px 60px rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.55);
+    }
+    .mandala-bg {
+      position: absolute;
+      inset: -40px;
+      background-image: url("mandala_bg.png"); /* <-- назва файлу з мандалою */
+      background-repeat: no-repeat;
+      background-position: center 10%;
+      background-size: 520px 520px;
+      opacity: 0.20;
+      filter: blur(0.6px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .card-inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: 18px 28px;
+    }
+
+    @media (max-width: 860px) {
+      .card-inner {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .mandala-bg {
+        background-position: center top;
+        background-size: 430px 430px;
+      }
+    }
+
+    .left-block {
+      padding-right: 6px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.95rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #a5b4fc;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 96px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #4b5563;
+      background: rgba(15,23,42,0.9);
+      resize: vertical;
+      font-size: 1rem;
+      color: #e5e7eb;
+      box-sizing: border-box;
+      outline: none;
+    }
+    textarea::placeholder {
+      color: #6b7280;
+    }
+    textarea:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 1px #6366f1;
+    }
+
+    .controls {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-size: 0.97rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #6366f1, #ec4899);
+      color: white;
+      box-shadow: 0 10px 22px rgba(99, 102, 241, 0.45);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.08s ease;
+    }
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      box-shadow: 0 16px 30px rgba(79, 70, 229, 0.7);
+    }
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 8px 16px rgba(79, 70, 229, 0.5);
+    }
+    .hint {
+      font-size: 0.87rem;
+      color: #9ca3af;
+    }
+
+    .output-block {
+      background: rgba(15,23,42,0.9);
+      border-radius: 14px;
+      padding: 10px 12px 12px;
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      margin-top: 10px;
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .output-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #e5e7eb;
+    }
+    .output-value {
+      letter-spacing: 0.12em;
+    }
+
+    /* трикутна матриця */
+    .matrix-triangle {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      margin-top: 6px;
+    }
+    .matrix-row {
+      display: flex;
+      gap: 10px;
+    }
+    .matrix-digit {
+      width: 20px;
+      text-align: center;
+    }
+
+    /* кольори */
+    .legend-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 6px 12px;
+      margin-top: 6px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.86rem;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .legend-digit {
+      font-weight: 600;
+      min-width: 16px;
+    }
+    .color-chip {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(15,23,42,0.7);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.4);
+    }
+    .legend-name {
+      text-transform: lowercase;
+    }
+    .row6-colors {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .row6-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 34px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(15,23,42,0.7);
+      font-size: 0.8rem;
+      color: #0f172a;
+      background: #e5e7eb;
+    }
+    .small-note {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    .footer {
+      margin-top: 24px;
+      font-size: 0.8rem;
+      color: #9ca3af;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-  <!-- Перед використанням скопіюйте цей файл як mandala.html і розмістіть поруч mandala.png -->
-  <img src="mandala.png" alt="Мандала генератора">
+  <div class="wrapper">
+    <h1><span>МІЙ НАМІР</span> НА МОВІ ВСЕСВІТУ</h1>
+    <p class="subtitle">генератор числового коду та мандальної матриці</p>
 
-  <h1>Числовий код наміру</h1>
-  <p>Напишіть свій намір – отримаєте числовий ряд:</p>
+    <div class="card">
+      <div class="mandala-bg"></div>
 
-  <textarea id="inputText" placeholder="Наприклад: я заробляю десять тисяч доларів на місяць"></textarea>
-  <button onclick="process()">Створити ряд</button>
+      <div class="card-inner">
+        <!-- ЛІВА ЧАСТИНА: намір + числа -->
+        <div class="left-block">
+          <h2 style="margin-top:0; font-size:1.05rem;">1. Введіть свій намір</h2>
+          <p>Пишіть щиро, українською, в стверджувальній формі. Система переведе фразу в числовий код.</p>
 
-  <h2>Числовий ряд:</h2>
-  <pre id="outputFull">—</pre>
+          <textarea id="wishInput" placeholder="Наприклад: Легко, радісно і вільно проявляю свій дар та отримую гідну винагороду."></textarea>
 
-  <h2>Спряжений ряд (8 членів):</h2>
-  <pre id="outputShort">—</pre>
+          <div class="controls">
+            <button id="generateBtn">Створити мову Всесвіту</button>
+            <span class="hint">Букви → числа → редукція до 6 → трикутна матриця та кольори.</span>
+          </div>
+
+          <div class="output-block" id="initialBlock" style="display:none;">
+            <div class="output-title">Початковий числовий ряд (усі цифри наміру):</div>
+            <div class="output-value" id="initialRow">—</div>
+          </div>
+
+          <div class="output-block" id="row6Block" style="display:none;">
+            <div class="output-title">Скорочений код наміру (6 чисел):</div>
+            <div class="output-value" id="row6">—</div>
+          </div>
+        </div>
+
+        <!-- ПРАВА ЧАСТИНА: матриця + кольори -->
+        <div>
+          <div class="output-block" id="matrixBlock" style="display:none;">
+            <div class="output-title">Трикутна матриця для мандали:</div>
+            <div id="matrixTriangle" class="matrix-triangle"></div>
+            <div class="small-note">Перший ряд (внизу) — край сектора; верхівка — наближення до центру мандали.</div>
+          </div>
+
+          <div class="output-block" id="colorBlock" style="display:none;">
+            <div class="output-title">Кольоровий код для цього наміру:</div>
+            <div id="colorLegend" class="legend-list"></div>
+            <div class="small-note" id="colorNote"></div>
+
+            <div style="margin-top:8px; font-weight:600;">Кольори для 6-членного коду:</div>
+            <div id="row6Colors" class="row6-colors"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Збережіть свій код — і перенесіть числа та кольори у мандалу як сакральний запис наміру на мові Всесвіту.
+    </div>
+  </div>
 
   <script>
-    // Pythagorean гематрія для українських літер
-    const gematria = {
-      'А':1,'Б':2,'В':3,'Г':4,'Ґ':5,'Д':6,'Е':7,'Є':8,'Ж':9,
-      'З':1,'И':2,'І':3,'Ї':4,'Й':5,'К':6,'Л':7,'М':8,'Н':9,
-      'О':1,'П':2,'Р':3,'С':4,'Т':5,'У':6,'Ф':7,'Х':8,'Ц':9,
-      'Ч':1,'Ш':2,'Щ':3,'Ь':4,'Ю':5,'Я':6
+    // 1. Букви → числа (твоя таблиця)
+    function textToNumbers(text) {
+      const map = {
+        'а':1, 'б':2, 'в':3, 'г':4, 'ґ':5, 'д':6, 'е':7, 'є':8, 'ж':9,
+        'з':1, 'и':2, 'і':3, 'ї':4, 'й':5, 'к':6, 'л':7, 'м':8, 'н':9,
+        'о':1, 'п':2, 'р':3, 'с':4, 'т':5, 'у':6, 'ф':7, 'х':8, 'ц':9,
+        'ч':1, 'ш':2, 'щ':3, 'ь':4, 'ю':5, 'я':6
+      };
+
+      return text
+        .toLowerCase()
+        .split('')
+        .map(ch => map[ch])
+        .filter(num => num !== undefined);
+    }
+
+    // 2. Сума пари цифр з редукцією до однієї цифри 1–9 (без нулів)
+    function pairSumDigit(a, b) {
+      let sum = a + b;
+      while (sum >= 10) {
+        sum = Math.floor(sum / 10) + (sum % 10);
+      }
+      if (sum === 0) sum = 1; // теоретично не потрібно, але лишаємо як захист
+      return sum;
+    }
+
+    // 3. Редукція ряду (трикутник) за твоєю методикою
+    function mandalaReduce(arr) {
+      const reduced = [];
+      for (let i = 0; i < arr.length - 1; i++) {
+        reduced.push(pairSumDigit(arr[i], arr[i + 1]));
+      }
+      return reduced;
+    }
+
+    // 4. Скорочення до 6 чисел
+    function reduceToSix(numbers) {
+      let result = [...numbers];
+      while (result.length > 6) {
+        result = mandalaReduce(result);
+      }
+      while (result.length < 6 && result.length >= 2) {
+        const last  = result[result.length - 1];
+        const prev  = result[result.length - 2];
+        const next  = pairSumDigit(prev, last);
+        result.push(next);
+      }
+      return result;
+    }
+
+    // 5. Побудова трикутної матриці
+    function buildTriangleMatrix(firstRow) {
+      const matrix = [];
+      let current = [...firstRow];
+      matrix.push(current);
+      while (current.length > 1) {
+        current = mandalaReduce(current);
+        matrix.push(current);
+      }
+      return matrix;
+    }
+
+    // 6. Кольори
+    const colorCycle = [
+      'червоний',     // 0
+      'синій',        // 1
+      'зелений',      // 2
+      'жовтий',       // 3
+      'блакитний',    // 4
+      'бірюзовий',    // 5
+      'рожевий',      // 6
+      'помаранчевий', // 7
+      'фіолетовий'    // 8
+    ];
+    const color0 = 'золотий';
+
+    const colorNameToCss = {
+      'червоний': '#ef4444',
+      'синій': '#3b82f6',
+      'зелений': '#22c55e',
+      'жовтий': '#eab308',
+      'блакитний': '#38bdf8',
+      'бірюзовий': '#14b8a6',
+      'рожевий': '#ec4899',
+      'помаранчевий': '#f97316',
+      'фіолетовий': '#a855f7',
+      'золотий': '#facc15'
     };
 
-    // Перетворення тексту в числовий масив
-    function textToNumbers(text) {
-      return text.toUpperCase()
-                 .split('')
-                 .map(ch => gematria[ch] || null)
-                 .filter(n => n);
+    function getColorForDigit(digit, firstDigit) {
+      if (digit === 0) return color0;
+      const shift = (firstDigit - 1) % 9; // 1 → 0; 2 →1; ... 9 →8
+      const idx = (digit - 1 + shift) % 9;
+      return colorCycle[idx];
     }
 
-    // Редукція числа до однозначного
-    function reduceNumber(n) {
-      while (n > 9) {
-        n = n.toString().split('').reduce((sum, d) => sum + parseInt(d), 0);
+    function buildColorLegend(firstDigit) {
+      const legend = [];
+      for (let d = 1; d <= 9; d++) {
+        legend.push({ digit: d, color: getColorForDigit(d, firstDigit) });
       }
-      return n;
+      legend.push({ digit: 0, color: color0 });
+      return legend;
     }
 
-    // Ітеративне спрощення рядка до довжини 8 за сумою сусідніх
-    function iterativeFiboSimplify(arr) {
-      let row = arr.slice();
-      while (row.length > 8) {
-        const next = [];
-        for (let i = 0; i < row.length - 1; i++) {
-          next.push(reduceNumber(row[i] + row[i + 1]));
-        }
-        row = next;
+    // 7. DOM-елементи
+    const wishInput      = document.getElementById('wishInput');
+    const initialRowEl   = document.getElementById('initialRow');
+    const row6El         = document.getElementById('row6');
+    const matrixTriangle = document.getElementById('matrixTriangle');
+    const colorLegendEl  = document.getElementById('colorLegend');
+    const colorNoteEl    = document.getElementById('colorNote');
+    const row6ColorsEl   = document.getElementById('row6Colors');
+
+    const initialBlock = document.getElementById('initialBlock');
+    const row6Block    = document.getElementById('row6Block');
+    const matrixBlock  = document.getElementById('matrixBlock');
+    const colorBlock   = document.getElementById('colorBlock');
+
+    // 8. Обробка кнопки
+    document.getElementById('generateBtn').addEventListener('click', () => {
+      const text = wishInput.value.trim();
+
+      if (!text) {
+        alert('Будь ласка, впишіть свій намір.');
+        return;
       }
-      return row;
-    }
 
-    // Обробка натискання кнопки
-    function process() {
-      const text = document.getElementById('inputText').value;
-      const full = textToNumbers(text);
-      const short = iterativeFiboSimplify(full);
-      document.getElementById('outputFull').textContent = full.join(', ');
-      document.getElementById('outputShort').textContent = short.join(', ');
-    }
+      const baseNumbers = textToNumbers(text);
+
+      if (baseNumbers.length < 2) {
+        alert('Замало символів для побудови ряду. Напишіть трохи довший намір.');
+        return;
+      }
+
+      const row6   = reduceToSix(baseNumbers);
+      const matrix = buildTriangleMatrix(row6);
+
+      initialRowEl.textContent = baseNumbers.join(' ');
+      row6El.textContent       = row6.join(' ');
+
+      // трикутна матриця (рівний трикутник)
+      matrixTriangle.innerHTML = '';
+      const reversed = [...matrix].reverse(); // щоб перший ряд був внизу
+      reversed.forEach(row => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'matrix-row';
+        row.forEach(d => {
+          const span = document.createElement('span');
+          span.className = 'matrix-digit';
+          span.textContent = d;
+          rowDiv.appendChild(span);
+        });
+        matrixTriangle.appendChild(rowDiv);
+      });
+
+      // кольори
+      const firstDigit = baseNumbers[0];
+      const legend = buildColorLegend(firstDigit);
+
+      colorLegendEl.innerHTML = '';
+      legend.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'legend-item';
+
+        const digitSpan = document.createElement('span');
+        digitSpan.className = 'legend-digit';
+        digitSpan.textContent = item.digit + ' –';
+
+        const chip = document.createElement('span');
+        chip.className = 'color-chip';
+        chip.style.backgroundColor = colorNameToCss[item.color] || '#e5e7eb';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'legend-name';
+        nameSpan.textContent = item.color;
+
+        div.appendChild(digitSpan);
+        div.appendChild(chip);
+        div.appendChild(nameSpan);
+        colorLegendEl.appendChild(div);
+      });
+
+      colorNoteEl.textContent =
+        'Кольори зсуваються за першою цифрою наміру. Для цього наміру перша цифра: ' +
+        firstDigit + '.';
+
+      row6ColorsEl.innerHTML = '';
+      row6.forEach(d => {
+        const colorName = getColorForDigit(d, firstDigit);
+        const chip = document.createElement('span');
+        chip.className = 'row6-chip';
+        chip.style.backgroundColor = colorNameToCss[colorName] || '#e5e7eb';
+        chip.textContent = d + ' ' + colorName;
+        row6ColorsEl.appendChild(chip);
+      });
+
+      initialBlock.style.display = 'block';
+      row6Block.style.display    = 'block';
+      matrixBlock.style.display  = 'block';
+      colorBlock.style.display   = 'block';
+    });
   </script>
 </body>
 </html>
+
