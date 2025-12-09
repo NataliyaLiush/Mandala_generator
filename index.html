@@ -56,7 +56,7 @@
     .mandala-bg {
       position: absolute;
       inset: -40px;
-      background-image: url("Mandala_wish_6/mandala_bg.png"); /* твоя мандала */
+      background-image: url("Mandala_wish_6/mandala_bg.png");
       background-repeat: no-repeat;
       background-position: center 10%;
       background-size: 520px 520px;
@@ -135,11 +135,6 @@
       transform: translateY(0);
       box-shadow: 0 8px 16px rgba(79, 70, 229, 0.5);
     }
-    .hint {
-      font-size: 0.87rem;
-      color: #9ca3af;
-      display: none; /* текст під кнопкою не показуємо */
-    }
 
     .output-block {
       background: rgba(15,23,42,0.9);
@@ -161,7 +156,6 @@
       letter-spacing: 0.12em;
     }
 
-    /* блок з двома трикутниками */
     .matrix-wrapper {
       display: flex;
       gap: 24px;
@@ -190,7 +184,6 @@
       text-align: center;
     }
 
-    /* кольори */
     .legend-list {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -251,7 +244,6 @@
 
           <div class="controls">
             <button id="generateBtn">Створити числовий код наміру</button>
-            <span class="hint"></span>
           </div>
 
           <div class="output-block" id="initialBlock" style="display:none;">
@@ -352,7 +344,7 @@
       return result;
     }
 
-    // трикутна матриця (вершина вниз)
+    // трикутна матриця: перший (найдовший) ряд зверху, далі все коротше
     function buildTriangleMatrix(firstRow) {
       const matrix = [];
       let current = [...firstRow];
@@ -361,7 +353,7 @@
         current = mandalaReduce(current);
         matrix.push(current);
       }
-      return matrix; // [6,5,4,3,2,1] довжини
+      return matrix; // [6,5,4,3,2,1]
     }
 
     // кольори
@@ -420,11 +412,28 @@
     const matrixBlock  = document.getElementById('matrixBlock');
     const colorBlock   = document.getElementById('colorBlock');
     const pdfBlock     = document.getElementById('pdfBlock');
+    const generateBtn  = document.getElementById('generateBtn');
     const downloadPdfBtn = document.getElementById('downloadPdfBtn');
 
     let lastData = null; // для PDF
 
-    document.getElementById('generateBtn').addEventListener('click', () => {
+    // малюємо трикутник вершиною вниз (довгий ряд зверху)
+    function renderTriangle(container, matrix) {
+      container.innerHTML = '';
+      matrix.forEach(function(row) {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'matrix-row';
+        row.forEach(function(d) {
+          const span = document.createElement('span');
+          span.className = 'matrix-digit';
+          span.textContent = d;
+          rowDiv.appendChild(span);
+        });
+        container.appendChild(rowDiv);
+      });
+    }
+
+    generateBtn.addEventListener('click', function () {
       const text = wishInput.value.trim();
 
       if (!text) {
@@ -441,38 +450,19 @@
 
       const row6   = reduceToSix(baseNumbers);
       const matrixMain   = buildTriangleMatrix(row6);
-      const row6Reversed = [...row6].reverse();
+      const row6Reversed = row6.slice().reverse();
       const matrixMirror = buildTriangleMatrix(row6Reversed);
 
       initialRowEl.textContent = baseNumbers.join(' ');
       row6El.textContent       = row6.join(' ');
 
-      // малюємо два трикутники (вершина вниз: перший ряд — довжина 1 нагорі, 6 — знизу)
-      f      // малюємо трикутник вершиною вниз:
-      // перший ряд (6 цифр) зверху, далі менші ряди
-      function renderTriangle(container, matrix) {
-        container.innerHTML = '';
-        matrix.forEach(row => {
-          const rowDiv = document.createElement('div');
-          rowDiv.className = 'matrix-row';
-          row.forEach(d => {
-            const span = document.createElement('span');
-            span.className = 'matrix-digit';
-            span.textContent = d;
-            rowDiv.appendChild(span);
-          });
-          container.appendChild(rowDiv);
-        });
-      }
-
       renderTriangle(matrixTriangleMain, matrixMain);
       renderTriangle(matrixTriangleMirror, matrixMirror);
 
-      // кольори
       const firstDigit = baseNumbers[0];
       const legend = buildColorLegend(firstDigit);
       colorLegendEl.innerHTML = '';
-      legend.forEach(item => {
+      legend.forEach(function (item) {
         const div = document.createElement('div');
         div.className = 'legend-item';
 
@@ -500,62 +490,61 @@
       colorBlock.style.display   = 'block';
       pdfBlock.style.display     = 'flex';
 
-      // зберігаємо дані для PDF
       lastData = {
-        text,
-        baseNumbers,
-        row6,
-        matrixMain,
-        matrixMirror,
-        legend
+        text: text,
+        baseNumbers: baseNumbers,
+        row6: row6,
+        matrixMain: matrixMain,
+        matrixMirror: matrixMirror,
+        legend: legend
       };
     });
 
-    downloadPdfBtn.addEventListener('click', () => {
+    downloadPdfBtn.addEventListener('click', function () {
       if (!lastData) return;
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
 
       let y = 10;
       doc.setFontSize(14);
-      doc.text('МІЙ НАМІР НА МОВІ ВСЕСВІТУ', 10, y);
+      doc.text('MIY NAMIR NA MOVI VSESVITU', 10, y);
       y += 8;
 
       doc.setFontSize(11);
-      doc.text('Намір:', 10, y);
+      doc.text('Namir (UA):', 10, y);
       y += 6;
       doc.text(doc.splitTextToSize(lastData.text, 180), 10, y);
       y += 10;
 
-      doc.text('Початковий числовий ряд:', 10, y);
+      doc.text('Pochatkovyi chyslovyi riad:', 10, y);
       y += 6;
       doc.text(lastData.baseNumbers.join(' '), 10, y);
       y += 8;
 
-      doc.text('Скорочений код (6 чисел):', 10, y);
+      doc.text('Skorochene koduvannia (6 chysel):', 10, y);
       y += 6;
       doc.text(lastData.row6.join(' '), 10, y);
       y += 10;
 
-      doc.text('Трикутна матриця (основний код):', 10, y);
+      doc.text('Trykutna matrytsia (osnovnyi kod):', 10, y);
       y += 6;
-      lastData.matrixMain.forEach(row => {
+      lastData.matrixMain.forEach(function (row) {
         doc.text(row.join(' '), 10, y);
         y += 6;
       });
       y += 6;
 
-      doc.text('Трикутна матриця (дзеркальний код):', 10, y);
+      doc.text('Trykutna matrytsia (dzerkalnyi kod):', 10, y);
       y += 6;
-      lastData.matrixMirror.forEach(row => {
+      lastData.matrixMirror.forEach(function (row) {
         doc.text(row.join(' '), 10, y);
         y += 6;
       });
       y += 8;
 
-      doc.text('Кольоровий код (цифра – колір):', 10, y);
+      doc.text('Kolorovyi kod (tsyfra – kolir):', 10, y);
       y += 6;
-      lastData.legend.forEach(item => {
+      lastData.legend.forEach(function (item) {
         doc.text(item.digit + ' – ' + item.color, 10, y);
         y += 6;
       });
