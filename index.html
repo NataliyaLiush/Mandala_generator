@@ -448,10 +448,11 @@
       row6El.textContent       = row6.join(' ');
 
       // малюємо два трикутники (вершина вниз: перший ряд — довжина 1 нагорі, 6 — знизу)
+      f      // малюємо трикутник вершиною вниз:
+      // перший ряд (6 цифр) зверху, далі менші ряди
       function renderTriangle(container, matrix) {
         container.innerHTML = '';
-        const reversed = [...matrix].reverse(); // щоб вершина (1 елемент) була зверху
-        reversed.forEach(row => {
+        matrix.forEach(row => {
           const rowDiv = document.createElement('div');
           rowDiv.className = 'matrix-row';
           row.forEach(d => {
